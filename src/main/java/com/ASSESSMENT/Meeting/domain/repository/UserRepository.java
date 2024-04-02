@@ -8,8 +8,9 @@ public interface UserRepository {
     List<User> getAll();
     Optional<User> getUser(Long id);
     Optional<User> getByUsername(String username);
-    User update(User user);
+    User update(String token, User user);
     User save(User user);
-    void delete(Long id);
+    void delete(String token, String confirm );
     UserToken login(User user);
+    User tokenAuth(String token);
 }

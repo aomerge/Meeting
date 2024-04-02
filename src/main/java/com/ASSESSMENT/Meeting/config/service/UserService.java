@@ -17,6 +17,8 @@ import java.util.Date;
 /** this class is used to validate the data of the user
  */
 public class UserService {
+    private final String SECRET_KEY = "miClaveSecretaParaProecccionDeTokenMiClaveSecretaParaProecccionDeTokenMiClaveSecret";
+
     /** this method is used to validate if the data of the user exists
      * @param input is the data of the user
      * @param messenge is the message that will be displayed if the data is null
@@ -61,6 +63,18 @@ public class UserService {
     public String GenerateToken(User user) {
         return PvtGenerateToken(user);
     }
+    /** this method is used to get the data of the token
+     * @param token is the token
+     * */
+    public Claims GetDataToken(String token) {
+        return PvtGetDataToken(token);
+    }
+    /** this method is used to validate if the data of the user exists
+     * @param user is the user
+     * */
+    public void ValidMethodUser(User user, String messenge) throws UserNotExist {
+        PvtValidMethodUser(user, messenge);
+    }
     private void PvtContainsSpecialCharacter(String input) throws DtoNotAutorizate {
         String specialCharacters = "!#$%^&*()_+=\\[\\]{};':\"\\\\|,<>\\/?";
         if (input == null) {
@@ -74,6 +88,11 @@ public class UserService {
     }
     private void PvtValidMethod(String input, String messenge) throws UserNotExist {
         if (input == null) {
+            throw new UserNotExist(messenge);
+        }
+    }
+    private void PvtValidMethodUser(User user, String messenge) throws UserNotExist {
+        if (user == null) {
             throw new UserNotExist(messenge);
         }
     }
@@ -113,12 +132,27 @@ public class UserService {
                     .claim("username", user.getUserName())
                     .claim("id", user.getUserId())
                     .setExpiration(expirationDate)
-                    .signWith(key)
+                    .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                     .compact();
             return token;
         } catch (IllegalArgumentException | NullPointerException e) {
             System.err.println("Error in the password encoding"+ e.getMessage());
             return null;
+        }
+    }
+    private Claims PvtGetDataToken(String token){
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                throw new UserNotExist("Token is null");
+            }
+            String tokenJwt = token.substring(7);
+            return Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(tokenJwt)
+                    .getBody();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            System.err.println("Error in the password encoding"+ e.getMessage());
+            throw new UserNotExist(e.getMessage());
         }
     }
 }
