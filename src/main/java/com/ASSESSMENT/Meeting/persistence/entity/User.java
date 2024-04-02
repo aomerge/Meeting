@@ -2,6 +2,8 @@ package com.ASSESSMENT.Meeting.persistence.entity;
 
 import jakarta.persistence.*;
 import com.ASSESSMENT.Meeting.persistence.entity.Attendees;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,19 +14,22 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "user_id", unique = true)
     private Long userId;
     @Column(name = "user_name")
     private String userName;
     @Column(name = "sub_name")
     private String subName;
+    @Column(unique = true)
     private String email;
     private String password;
-    @Column(name = "create_at")
+    @Column(name = "create_at", nullable = false, updatable = false)
     @Temporal(TemporalType.DATE)
+    @CreatedDate
     private Date createAt;
-    @Column(name = "update_at")
     @Temporal(TemporalType.DATE)
+    @Column(name = "update_at", nullable = false)
+    @LastModifiedDate
     private Date updateAt;
 
     @OneToMany(mappedBy = "userId")
@@ -92,5 +97,23 @@ public class User {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", subName='" + subName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                '}';
+    }
+    @PrePersist
+    public void onCreate() {
+        createAt = new Date();
+        updateAt = new Date();
     }
 }

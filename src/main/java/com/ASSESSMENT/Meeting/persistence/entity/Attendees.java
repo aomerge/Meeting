@@ -1,7 +1,9 @@
 package com.ASSESSMENT.Meeting.persistence.entity;
 
 import jakarta.persistence.*;
-
+/**
+ * This class represents the Attendees entity
+ */
 @Entity
 @Table(name = "attendees")
 public class Attendees {
