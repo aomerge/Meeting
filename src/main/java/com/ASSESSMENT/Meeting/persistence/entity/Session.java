@@ -2,6 +2,8 @@ package com.ASSESSMENT.Meeting.persistence.entity;
 
 import jakarta.persistence.*;
 import com.ASSESSMENT.Meeting.persistence.entity.Attendees;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -24,9 +26,11 @@ public class Session {
     private Date sessionSchedule;
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)
+    @CreatedDate
     private Date createAt;
     @Column(name = "update_at")
     @Temporal(TemporalType.DATE)
+    @LastModifiedDate
     private Date updateAt;
     @OneToMany(mappedBy = "sessionId")
     private List<Attendees> attendees = new ArrayList<>();
@@ -104,5 +108,25 @@ public class Session {
 
     public void setAttendees(List<Attendees> attendees) {
         this.attendees = attendees;
+    }
+
+    @Override
+    public String toString() {
+        return "Session{" +
+                "sessionId=" + sessionId +
+                ", sessionName='" + sessionName + '\'' +
+                ", sessionDescription='" + sessionDescription + '\'' +
+                ", sessionSchedule=" + sessionSchedule +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                ", attendees=" + attendees +
+                ", sessionDuration=" + sessionDuration +
+                ", isActive=" + isActive +
+                '}';
+    }
+    @PrePersist
+    public void prePersist() {
+        createAt = new Date(System.currentTimeMillis());
+        updateAt = new Date(System.currentTimeMillis());
     }
 }
