@@ -1,5 +1,7 @@
 package com.ASSESSMENT.Meeting.persistence.entity;
 
+import com.ASSESSMENT.Meeting.config.service.ValidationService;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import com.ASSESSMENT.Meeting.persistence.entity.Attendees;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,11 +35,36 @@ public class Session {
     @LastModifiedDate
     private Date updateAt;
     @OneToMany(mappedBy = "sessionId")
+    @JsonManagedReference("attendeesSession")
     private List<Attendees> attendees = new ArrayList<>();
     @Column(name = "session_duration")
     private Float sessionDuration;
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @Column(name = "access")
+    @Enumerated(EnumType.STRING)
+    private AccessType accessType = AccessType.PUBLIC;
+
+    @Column(name = "access-code")
+    private String accessCode = new ValidationService().generarCodigoAcceso(22);
+
+    public String getAccessCode() {
+        return accessCode;
+    }
+
+    public void setAccessCode(String accessCode) {
+        this.accessCode = accessCode;
+    }
+
+    public AccessType getAccessType() {
+        return accessType;
+    }
+
+    public void setAccessType(AccessType accessType) {
+        this.accessType = accessType;
+    }
+
     public Long getSessionId() {
         return sessionId;
     }
@@ -128,5 +155,9 @@ public class Session {
     public void prePersist() {
         createAt = new Date(System.currentTimeMillis());
         updateAt = new Date(System.currentTimeMillis());
+    }
+    public enum AccessType {
+        PUBLIC,
+        PRIVATE
     }
 }
