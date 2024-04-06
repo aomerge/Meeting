@@ -3,7 +3,7 @@ package com.ASSESSMENT.Meeting.domain.component;
 import com.ASSESSMENT.Meeting.config.StructureToken.UserToken;
 import com.ASSESSMENT.Meeting.config.customExeption.TokenNotAutorization;
 import com.ASSESSMENT.Meeting.config.customExeption.UserNotExist;
-import com.ASSESSMENT.Meeting.config.service.UserService;
+import com.ASSESSMENT.Meeting.config.service.ValidationService;
 import com.ASSESSMENT.Meeting.persistence.crud.UserCrudRepository;
 import com.ASSESSMENT.Meeting.domain.repository.UserRepository;
 import com.ASSESSMENT.Meeting.persistence.entity.User;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Component
 public class UserComponent implements UserRepository {
-    private final UserService _userService = new UserService();
+    private final ValidationService _userService = new ValidationService();
     /**/
     @Autowired
     private UserCrudRepository userCrudRepository;
@@ -31,19 +31,14 @@ public class UserComponent implements UserRepository {
     }
     @Override
     public User save (User user) throws UserNotExist {
-        UserService userService = new UserService();
-        userService.ValidMethod(user.getEmail(), "Email is null");
-        userService.ValidMethod(user.getPassword(), "Password is null");
-        userService.ValidMethod(user.getUserName(), "User Name is null");
-        userService.ContainsSpecialCharacter(user.getUserName());
-        userService.ContainsSpecialCharacter(user.getPassword());
-        userService.ContainsSpecialCharacter(user.getEmail());
-        userService.ContainsSpecialCharacter(user.getSubName());
-        String hashedPassword = userService.EncodePassword(user.getPassword());
+        _userService.Validation(user.getEmail(), "Email not can be null");
+        _userService.Validation(user.getPassword(), "Password not can be null");
+        _userService.Validation(user.getUserName(), "Name not can be null");
+        String hashedPassword = _userService.EncodePassword(user.getPassword());
         user.setPassword(hashedPassword);
         User userDto = userCrudRepository.findByEmail(user.getEmail());
         System.out.println(userDto);
-        userService.EmailExist(userDto);
+        _userService.EmailExist(userDto, "Email Exist");
 
         return userCrudRepository.save(user);
     }
@@ -60,13 +55,13 @@ public class UserComponent implements UserRepository {
     @Override
     public UserToken login(User user) {
         try{
-            UserService userService = new UserService();
-            userService.ValidMethod(user.getEmail(), "Email is null");
-            userService.ValidMethod(user.getPassword(), "Password is null");
+
+            _userService.Validation(user.getEmail(), "Email is null");
+            _userService.Validation(user.getPassword(), "Password is null");
             User userDto = userCrudRepository.findByEmail(user.getEmail());
-            userService.EmailNotExist(userDto);
-            userService.CheckPassword(user.getPassword(), userDto.getPassword());
-            String Token = userService.GenerateToken(userDto);
+            _userService.Validation(userDto, "User not found");
+            _userService.CheckPassword(user.getPassword(), userDto.getPassword());
+            String Token = _userService.GenerateToken(userDto);
             UserToken userToken = new UserToken();
             userToken.setToken(Token);
             userToken.setEmail(userDto.getEmail());
@@ -80,16 +75,15 @@ public class UserComponent implements UserRepository {
     }
     @Override
     public User tokenAuth(String token) {
-        UserService userService = new UserService();
-        Claims claims = userService.GetDataToken(token);
+        Claims claims = _userService.GetDataToken(token);
         User userDto = userCrudRepository.findByEmailAndUserId(claims.get("email").toString(), Long.parseLong(claims.get("id").toString()));
-        userService.EmailNotExist(userDto);
+        _userService.Validation(userDto, "User not found");
         return userDto;
     }
     @Override
     public void delete( String token, String confirm) {
-            _userService.ValidMethod(token, "Token is null");
-            _userService.ValidMethod(confirm, "Confirm is null");
+            _userService.Validation(token, "Token is null");
+            _userService.Validation(confirm, "Confirm is null");
             Claims claims = _userService.GetDataToken(token);
             if (confirm == null || !confirm.equals(claims.get("username"))) {
                 throw new UserNotExist("User not confirm delete");
@@ -99,15 +93,15 @@ public class UserComponent implements UserRepository {
 
     @Override
     public User update(String Token, User user) {
-        _userService.ValidMethod(Token, "Token is null");
-        _userService.ValidMethodUser(user, "The body is Required");
+        _userService.Validation(Token, "Token is null");
+        _userService.Validation(user, "The body is Required");
         Claims claims = _userService.GetDataToken(Token);
         User userDto = userCrudRepository.findByEmailAndUserId(claims.get("email").toString(), Long.parseLong(claims.get("id").toString()));
-        _userService.ValidMethodUser(userDto, "User not found");
+        _userService.Validation(userDto, "User not found");
         userDto.setUserName(user.getUserName());
         userDto.setSubName(user.getSubName());
         User Email =  userCrudRepository.findByEmail(user.getEmail());
-        _userService.EmailExist(Email);
+        _userService.EmailExist(Email, "Email Exist");
         userDto.setEmail(user.getEmail());
 
         return userCrudRepository.save(userDto);

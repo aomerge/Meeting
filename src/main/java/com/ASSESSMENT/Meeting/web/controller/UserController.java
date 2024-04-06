@@ -2,10 +2,7 @@ package com.ASSESSMENT.Meeting.web.controller;
 
 import com.ASSESSMENT.Meeting.config.Error.ApiError;
 import com.ASSESSMENT.Meeting.config.StructureToken.UserToken;
-import com.ASSESSMENT.Meeting.config.customExeption.DtoNotAutorizate;
-import com.ASSESSMENT.Meeting.config.customExeption.EmailExist;
-import com.ASSESSMENT.Meeting.config.customExeption.TokenNotAutorization;
-import com.ASSESSMENT.Meeting.config.customExeption.UserNotExist;
+import com.ASSESSMENT.Meeting.config.customExeption.*;
 import com.ASSESSMENT.Meeting.domain.service.UserService;
 import com.ASSESSMENT.Meeting.persistence.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +23,10 @@ public class UserController {
         try {
             User savedUser = userService.save(createUser);
             return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-        } catch (UserNotExist e) {
-            String errorMessage = "Error: " + e.getMessage();
-            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
-        } catch ( DtoNotAutorizate e){
-            String errorMessage = "Error: " + e.getMessage();
-            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
+        } catch (BadRequestDataException e) {
+            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PostMapping
@@ -42,14 +35,11 @@ public class UserController {
         try {
             UserToken savedUser = userService.login(loginUser);
             return new ResponseEntity<>(savedUser, HttpStatus.OK);
-        } catch (UserNotExist e) {
-            String errorMessage = "Error: " + e.getMessage();
-            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
-        } catch ( DtoNotAutorizate e){
+        } catch (BadRequestDataException e) {
             String errorMessage = "Error: " + e.getMessage();
             return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/testAuth")
@@ -60,11 +50,11 @@ public class UserController {
         } catch ( TokenNotAutorization e){
             String errorMessage = "Error: " + e.getMessage();
             return new ResponseEntity<>( new ApiError(HttpStatus.UNAUTHORIZED,errorMessage), HttpStatus.UNAUTHORIZED);
-        }catch (UserNotExist e){
+        }catch (BadRequestDataException e){
             String errorMessage = "Error: " + e.getMessage();
             return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
         }catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -74,13 +64,11 @@ public class UserController {
             userService.delete(token, Confirm);
             return new ResponseEntity<>(new ApiError(HttpStatus.OK, "User Delete Susses"),HttpStatus.OK);
         }catch (TokenNotAutorization e){
-            String errorMessage = "Error: " + e.getMessage();
-            return new ResponseEntity<>( new ApiError(HttpStatus.UNAUTHORIZED,errorMessage), HttpStatus.UNAUTHORIZED);
-        }catch (UserNotExist e) {
-            String errorMessage = "Error: " + e.getMessage();
-            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>( new ApiError(HttpStatus.UNAUTHORIZED,e.getMessage()), HttpStatus.UNAUTHORIZED);
+        }catch (BadRequestDataException e) {
+            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PutMapping("/update")
@@ -88,11 +76,12 @@ public class UserController {
         try {
             User savedUser = userService.update(Token, updateUser);
             return new ResponseEntity<>(savedUser, HttpStatus.OK);
-        } catch (UserNotExist e) {
-            String errorMessage = "Error: " + e.getMessage();
-            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,errorMessage), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (BadRequestDataException e) {
+            return new ResponseEntity<>( new ApiError(HttpStatus.BAD_REQUEST,e.getMessage()), HttpStatus.BAD_REQUEST);
+        }catch (TokenNotAutorization e){
+            return new ResponseEntity<>( new ApiError(HttpStatus.UNAUTHORIZED,e.getMessage()), HttpStatus.UNAUTHORIZED);
+        }catch (Exception e) {
+            return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

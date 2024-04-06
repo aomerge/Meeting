@@ -1,5 +1,6 @@
 package com.ASSESSMENT.Meeting.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import com.ASSESSMENT.Meeting.persistence.entity.Attendees;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,6 +34,7 @@ public class User {
     private Date updateAt;
 
     @OneToMany(mappedBy = "userId")
+    @JsonManagedReference("attendeesUser")
     private List<Attendees> attendees = new ArrayList<>();
 
     public List<Attendees> getAttendees() {
