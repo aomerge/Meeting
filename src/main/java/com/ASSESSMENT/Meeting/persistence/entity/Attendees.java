@@ -1,5 +1,7 @@
 package com.ASSESSMENT.Meeting.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 /**
  * This class represents the Attendees entity
@@ -12,15 +14,26 @@ public class Attendees {
     @Column(name = "attendees_id")
     private Long attendeesId;
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JsonBackReference("attendeesUser")
     private User userId;
 
     @ManyToOne
-    @JoinColumn(name = "session_id", referencedColumnName = "session_id", insertable = false, updatable = false)
+    @JoinColumn(name = "session_id", referencedColumnName = "session_id")
+    @JsonBackReference("attendeesSession")
     private Session sessionId;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
+    @Column(name = "access")
+    @Enumerated(EnumType.STRING)
+    private AccessType accessType;
+
+    public AccessType getAccessType() {
+        return accessType;
+    }
+
+    public void setAccessType(AccessType accessType) {
+        this.accessType = accessType;
+    }
 
     public Long getAttendeesId() {
         return attendeesId;
@@ -46,11 +59,18 @@ public class Attendees {
         this.sessionId = sessionId;
     }
 
-    public Boolean getActive() {
-        return isActive;
-    }
 
-    public void setActive(Boolean active) {
-        isActive = active;
+    @Override
+    public String toString() {
+        return "Attendees{" +
+                "attendeesId=" + attendeesId +
+                ", userId=" + userId +
+                ", sessionId=" + sessionId +
+                ", isActive=" +  +
+                '}';
+    }
+    public enum AccessType {
+        OWNER,
+        ATTENDEE
     }
 }
