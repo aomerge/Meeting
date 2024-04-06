@@ -14,7 +14,7 @@ COPY src src
 RUN ./mvnw package -DskipTests
 
 # Usar una imagen base ligera para el contenedor final
-FROM openjdk:11-jre-slim
+FROM openjdk:17-jre-slim
 
 ARG JAR_FILE=/app/target/*.jar
 
