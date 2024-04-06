@@ -1,10 +1,7 @@
 package com.ASSESSMENT.Meeting.domain.service;
 
 import com.ASSESSMENT.Meeting.config.StructureToken.UserToken;
-import com.ASSESSMENT.Meeting.config.customExeption.DtoNotAutorizate;
-import com.ASSESSMENT.Meeting.config.customExeption.SessionNotExist;
-import com.ASSESSMENT.Meeting.config.customExeption.TokenNotAutorization;
-import com.ASSESSMENT.Meeting.config.customExeption.UserNotExist;
+import com.ASSESSMENT.Meeting.config.customExeption.*;
 import com.ASSESSMENT.Meeting.domain.repository.UserRepository;
 import com.ASSESSMENT.Meeting.persistence.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +20,12 @@ public class UserService {
     public User save(User user) {
         try {
            return userRepository.save( user );
-        } catch (UserNotExist e){
-            throw  new UserNotExist(e.getMessage());
-        }catch (SessionNotExist e){
-            throw  new IllegalArgumentException(e.getMessage());
-        }catch (Exception e){
+        }catch (BadRequestDataException e){
+            throw  new BadRequestDataException(e.getMessage());
+        }catch (TokenNotAutorization e){
             throw  new TokenNotAutorization(e.getMessage());
+        }catch (Exception e){
+            throw new InternalServerError(e.getMessage());
         }
     }
     public void delete(String token, String confirm) {
@@ -36,8 +33,10 @@ public class UserService {
             userRepository.delete(token, confirm);
         } catch (UserNotExist e) {
             throw new UserNotExist(e.getMessage());
-        }catch (Exception e) {
+        }catch ( TokenNotAutorization e){
             throw new TokenNotAutorization(e.getMessage());
+        }catch (Exception e) {
+            throw new InternalServerError(e.getMessage());
         }
     }
     public User update(String Token,  User user) {
@@ -45,8 +44,10 @@ public class UserService {
             return userRepository.update(Token , user);
         } catch (UserNotExist e) {
             throw new UserNotExist(e.getMessage());
-        } catch (Exception e) {
+        }catch (TokenNotAutorization e){
             throw new TokenNotAutorization(e.getMessage());
+        }catch (Exception e) {
+            throw new InternalServerError(e.getMessage());
         }
     }
     public String getTest() {
