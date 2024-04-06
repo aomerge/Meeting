@@ -59,7 +59,7 @@ thi is the API for meeting where you can create a meeting and invite people to j
 
 ## Licencia
 
-Este proyecto está licenciado bajo la Licencia XYZ - ver el archivo LICENSE.md para más detalles.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Agradecimientos
 
