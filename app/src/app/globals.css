@@ -31,3 +31,16 @@ body {
     text-wrap: balance;
   }
 }
+
+/* styles.css */
+@layer components {
+  .hide-scrollbar {
+    scrollbar-width: none; /* Para Firefox */
+    
+    /* Para Chrome, Safari, etc. */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+

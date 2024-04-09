@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface FetchOptions extends RequestInit {
   method: "GET" | "POST" | "PUT" | "DELETE";
@@ -12,37 +12,28 @@ interface UseFetchReturn {
 }
 
 const useFetch = (): UseFetchReturn => {
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchData = async (
-    url: string,
-    options: FetchOptions = { method: "GET" }
-  ) => {
-    if (!url) {
-      setError("URL is required");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const result = await response.json();
-      setData(result);
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { data, isLoading, error, fetchData };
+    const [data, setData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+        
+    const fetchData = async (url: string, options: FetchOptions = { method: "GET" }) => {
+        setIsLoading(true);
+        
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },            
+        }).then(async (res) => {
+            setIsLoading(false);
+            const jsonParcer = res.json();
+            setData(await jsonParcer);
+        }).catch((err) => {
+            setError(err.message);
+        });       
+    };
+    
+    return { data, isLoading, error, fetchData };
 };
 
 export default useFetch;
