@@ -10,7 +10,7 @@ export default function ResponseDisplay({ response }: { response: any }) {
                 <button className=" rounded-md bg-orange-700 px-8 py-2">Html</button>
             </div>
         </div>
-        <pre className="border px-20 py-10 rounded-md text-gray-500 border-gray-700">{JSON.stringify(response, null, 2)}</pre>
+        <pre className="border px-20 py-10 rounded-md w-3/4 text-gray-500 border-gray-700">{JSON.stringify(response, null, 2)}</pre>
       </div>
     );
 }

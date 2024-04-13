@@ -20,7 +20,7 @@ const useFetch = (): UseFetchReturn => {
         setIsLoading(true);
         
         const response = await fetch(url, {
-            method: "GET",
+            method: options.method,
             headers: {
                 "Content-Type": "application/json",
             },            
